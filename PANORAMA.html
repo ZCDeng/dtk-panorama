@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design Toolkit — 设计能力全景</title>
+<script>
+  (function () {
+    const saved = localStorage.getItem('dtk-theme');
+    const dark = saved ? saved === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.classList.toggle('dark', dark);
+  })();
+</script>
+<style>
+  :root {
+    --bg: #FAF9F5; --surface: #FFFFFF; --surface2: #F0EEE6;
+    --ink: #141413; --body: #3D3D3A; --muted: #87867F;
+    --line: #D1CFC5; --line-soft: #E6E3DA;
+    --clay: #D97757; --clay-soft: rgba(217,119,87,0.10);
+    --olive: #788C5D; --olive-soft: rgba(120,140,93,0.12);
+    --gold: #C9A45C; --gold-soft: rgba(201,164,92,0.13);
+    --blue: #5B7E96; --blue-soft: rgba(91,126,150,0.12);
+    --zone: rgba(20,20,19,0.025); --zone-line: #D1CFC5;
+    --serif: ui-serif, Georgia, "Songti SC", "Times New Roman", serif;
+    --sans: system-ui, -apple-system, "PingFang SC", "Segoe UI", Roboto, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  html.dark {
+    --bg: #141413; --surface: #1F1F1D; --surface2: #2A2A28;
+    --ink: #FAF9F5; --body: #D1CFC5; --muted: #8A897F;
+    --line: #3D3D3A; --line-soft: #2A2A28;
+    --clay: #E48A6E; --clay-soft: rgba(228,138,110,0.14);
+    --olive: #9DB07C; --olive-soft: rgba(157,176,124,0.16);
+    --gold: #D4B36F; --gold-soft: rgba(212,179,111,0.15);
+    --blue: #7FA3BC; --blue-soft: rgba(127,163,188,0.15);
+    --zone: rgba(250,249,245,0.03); --zone-line: #3D3D3A;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    background: var(--bg); color: var(--body); font-family: var(--sans);
+    -webkit-font-smoothing: antialiased; display: flex; flex-direction: column; overflow: hidden;
+  }
+
+  .bar {
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    padding: 12px 20px; border-bottom: 1px solid var(--line-soft); flex: none;
+  }
+  .bar h1 { font-family: var(--serif); font-weight: 500; font-size: 19px; color: var(--ink); letter-spacing: 0.01em; }
+  .bar .sub { font-family: var(--mono); font-size: 10.5px; color: var(--muted); letter-spacing: 0.04em; }
+  .spacer { flex: 1; }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip {
+    font-family: var(--sans); font-size: 12px; letter-spacing: 0.02em;
+    padding: 5px 12px; border: 1px solid var(--line); border-radius: 999px;
+    background: transparent; color: var(--muted); cursor: pointer; transition: all .15s ease;
+  }
+  .chip:hover { color: var(--ink); border-color: var(--muted); }
+  .chip.on { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+  .chip.star.on { background: var(--clay); border-color: var(--clay); }
+  #themeToggle {
+    font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+    padding: 5px 10px; border: 1px solid var(--line); border-radius: 6px;
+    background: transparent; color: var(--muted); cursor: pointer;
+  }
+  #themeToggle:hover { color: var(--ink); border-color: var(--muted); }
+
+  .stage { flex: 1; position: relative; min-height: 0; }
+  .stage svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+  .zone rect { fill: var(--zone); stroke: var(--zone-line); stroke-width: 1; stroke-dasharray: 5 5; }
+  .zone .ztitle { font-family: var(--mono); font-size: 12.5px; letter-spacing: 0.08em; fill: var(--muted); }
+  .zone .zsub { font-family: var(--mono); font-size: 10.5px; fill: var(--muted); opacity: 0.72; }
+
+  .node { cursor: pointer; }
+  .node rect { fill: var(--surface); stroke: var(--line); stroke-width: 1.5; transition: stroke .15s ease, filter .15s ease; }
+  .node:hover rect { stroke: var(--muted); }
+  .node.sel rect { stroke: var(--clay) !important; stroke-width: 2.5; }
+  .node .t  { font-family: var(--sans); font-size: 15px; font-weight: 700; fill: var(--ink); pointer-events: none; }
+  .node .m  { font-family: var(--mono); font-size: 11px; fill: var(--body); pointer-events: none; }
+  .node .k  { font-family: var(--mono); font-size: 10px; letter-spacing: 0.06em; fill: var(--muted); pointer-events: none; }
+  .node.shell rect { fill: var(--ink); stroke: var(--ink); }
+  .node.shell .t { fill: var(--bg); font-size: 17px; }
+  .node.shell .m { fill: var(--surface2); opacity: .85; }
+  .node.shell .k { fill: var(--gold); }
+  .node.hot rect { fill: var(--surface); }
+  .node.new rect { fill: var(--clay-soft); stroke: var(--clay); stroke-width: 2; }
+  .node.store rect { fill: var(--surface2); stroke-dasharray: 2 3; }
+  .node.bridge rect { fill: var(--blue-soft); stroke: var(--blue); }
+  .node.guard rect { fill: var(--olive-soft); stroke: var(--olive); stroke-dasharray: 7 4; }
+
+  .edge { stroke: var(--muted); stroke-width: 1.6; fill: none; marker-end: url(#a-mut); transition: opacity .2s ease, stroke .2s ease; }
+  .edge.dash { stroke-dasharray: 5 4; }
+  .edge.thick { stroke-width: 2.4; }
+  .elbl { font-family: var(--mono); font-size: 10.5px; fill: var(--muted); transition: opacity .2s ease; }
+
+  .stage.flowing .edge { opacity: 0.10; }
+  .stage.flowing .elbl { opacity: 0.10; }
+  .stage.flowing .node { opacity: 0.26; }
+  .stage.flowing .zone { opacity: 0.42; }
+  .stage.flowing .edge.lit {
+    opacity: 1; stroke: var(--clay); marker-end: url(#a-clay);
+    stroke-dasharray: 7 5; animation: march 0.9s linear infinite;
+  }
+  .stage.flowing .elbl.lit { opacity: 1; fill: var(--clay); }
+  .stage.flowing .node.lit { opacity: 1; }
+  .stage.flowing .node.lit rect { stroke: var(--clay); }
+  @keyframes march { to { stroke-dashoffset: -12; } }
+  @media (prefers-reduced-motion: reduce) { .stage.flowing .edge.lit { animation: none; } }
+
+  .nbadge text { font-family: var(--mono); font-size: 10px; font-weight: 700; fill: var(--clay); letter-spacing: 0.08em; }
+
+  .card {
+    position: absolute;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+    padding: 14px 16px; box-shadow: 0 6px 24px rgba(0,0,0,0.10);
+  }
+  #detail { right: 16px; bottom: 16px; width: 350px; }
+  #detail h3 { font-family: var(--serif); font-weight: 500; font-size: 17px; color: var(--ink); margin-bottom: 2px; }
+  #detail .meta { font-family: var(--mono); font-size: 10.5px; color: var(--muted); margin-bottom: 8px; }
+  #detail p { font-size: 12.5px; line-height: 1.6; }
+  #detail p code, #flowcap code { font-family: var(--mono); font-size: 11px; color: var(--clay); }
+  #detail b, #flowcap b { color: var(--ink); }
+  #flowcap { left: 16px; bottom: 16px; max-width: 470px; display: none; }
+  #flowcap.show { display: block; }
+  #flowcap .fname { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.06em; color: var(--clay); margin-bottom: 6px; }
+  #flowcap ol { margin-left: 18px; }
+  #flowcap li { font-size: 12.5px; line-height: 1.6; }
+  .src { position: absolute; top: 10px; left: 16px; font-family: var(--mono); font-size: 10px; color: var(--muted); opacity: 0.8; }
+  @media (max-width: 900px) {
+    body { overflow: auto; }
+    .stage { min-height: 78vh; }
+    #detail { position: static; width: auto; margin: 10px 16px; }
+    #flowcap { position: static; margin: 0 16px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <div>
+    <h1>Design Toolkit — 设计能力全景</h1>
+    <div class="sub">路由壳 · 三层资源 · 8 处裁决 · taste 家族新入 · 对应 reference_design_skill_library</div>
+  </div>
+  <div class="spacer"></div>
+  <div class="chips" id="chips">
+    <button class="chip on" data-flow="all">全部</button>
+    <button class="chip star" data-flow="taste">前端码风 ★</button>
+    <button class="chip" data-flow="deck">出 deck</button>
+    <button class="chip" data-flow="ui">UI 原型</button>
+    <button class="chip" data-flow="poster">海报/卡片</button>
+    <button class="chip" data-flow="motion">动效/视频</button>
+    <button class="chip" data-flow="brand">品牌主题</button>
+    <button class="chip" data-flow="ocr">OCR 图→字</button>
+    <button class="chip" data-flow="cold">够不着→冷库</button>
+  </div>
+  <button id="themeToggle">主题</button>
+</div>
+
+<div class="stage" id="stage">
+<svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Design Toolkit 设计能力全景路由图">
+  <defs>
+    <marker id="a-mut" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" style="fill: var(--muted)"/>
+    </marker>
+    <marker id="a-clay" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" style="fill: var(--clay)"/>
+    </marker>
+  </defs>
+
+  <!-- ── zones ─────────────────────────────── -->
+  <g class="zone" id="z-hot">
+    <rect x="36" y="132" width="1060" height="600" rx="16"/>
+    <text class="ztitle" x="58" y="162">层 1 · 热集 — 已加载 · 直接 Skill 调用</text>
+    <text class="zsub" x="58" y="180">~/.claude/skills · SessionStart 注入 · 受 skills-guard 探针保护（基线 110）</text>
+  </g>
+  <g class="zone" id="z-bridge">
+    <rect x="1116" y="560" width="468" height="306" rx="16"/>
+    <text class="ztitle" x="1138" y="590">桥接 — CLI / MCP 通道（非 skill）</text>
+    <text class="zsub" x="1138" y="608">现取现用 · 不占 SessionStart 加载</text>
+  </g>
+
+  <!-- ── edges ─────────────────────────────── -->
+  <path class="edge thick" id="e-hot"   d="M760,104 C 700,118 600,120 566,130"/>
+  <path class="edge" id="e-cold"        d="M928,86 C 1130,92 1180,150 1260,196"/>
+  <path class="edge" id="e-proj"        d="M1300,388 L1300,432"/>
+  <path class="edge dash" id="e-brand1" d="M1140,612 C 1010,600 980,470 1066,452"/>
+  <path class="edge dash" id="e-brand2" d="M1140,648 C 980,720 900,560 836,540"/>
+  <path class="edge dash" id="e-ocr"    d="M1140,724 C 700,800 240,720 178,540"/>
+  <path class="edge dash" id="e-vimax"  d="M1140,812 C 860,860 700,620 642,540"/>
+  <path class="edge dash" id="e-guard"  d="M566,756 L566,732"/>
+
+  <text class="elbl" data-e="e-cold"   x="1120" y="150">够不着→冷库</text>
+  <text class="elbl" data-e="e-brand1" x="980"  y="486">令牌→design-md</text>
+  <text class="elbl" data-e="e-ocr"    x="430"  y="690">图→字 喂排版</text>
+  <text class="elbl" data-e="e-vimax"  x="720"  y="640">创意片素材</text>
+
+  <!-- ── shell ─────────────────────────────── -->
+  <g class="node shell" data-k="shell">
+    <rect x="660" y="32" width="280" height="74" rx="12"/>
+    <text class="t" x="684" y="64">design-toolkit</text>
+    <text class="k" x="684" y="84">路由壳 · 不产出 · 选型/裁决/桥接</text>
+  </g>
+
+  <!-- ── hot clusters (4×2) ────────────────── -->
+  <g class="node hot" data-k="docs">
+    <rect x="60" y="200" width="234" height="196" rx="11"/>
+    <text class="t" x="80" y="232">文档 / 落地页</text>
+    <text class="m" x="80" y="258">kami</text>
+    <text class="m" x="80" y="278">kami-landing</text>
+    <text class="m" x="80" y="298">html-beautify · 75 模板</text>
+    <text class="k" x="80" y="330">简历/一页纸/白皮书</text>
+    <text class="k" x="80" y="348">作品集 · 单页官网</text>
+    <text class="k" x="80" y="378">裁决 1·2</text>
+  </g>
+  <g class="node hot" data-k="deck">
+    <rect x="318" y="200" width="234" height="196" rx="11"/>
+    <text class="t" x="338" y="232">幻灯片 Deck</text>
+    <text class="m" x="338" y="258">guizang-ppt ● 默认</text>
+    <text class="m" x="338" y="278">kami-deck · 印刷级</text>
+    <text class="k" x="338" y="310">封闭美学系统</text>
+    <text class="k" x="338" y="328">拒外部 hex/theme</text>
+    <text class="k" x="338" y="358">要品牌主题→层 3</text>
+    <text class="k" x="338" y="378">裁决 1</text>
+  </g>
+  <g class="node hot" data-k="ui">
+    <rect x="576" y="200" width="234" height="196" rx="11"/>
+    <text class="t" x="596" y="232">UI / 原型 / Demo</text>
+    <text class="m" x="596" y="258">huashu-design · 生成</text>
+    <text class="m" x="596" y="278">design-md · 品牌风</text>
+    <text class="k" x="596" y="310">embody 专家出 mockup</text>
+    <text class="k" x="596" y="328">上线前→design-review</text>
+    <text class="k" x="596" y="358">规范 apple-hig 等</text>
+    <text class="k" x="596" y="378">裁决 5</text>
+  </g>
+  <g class="node new" data-k="taste">
+    <rect x="834" y="200" width="234" height="196" rx="11"/>
+    <g class="nbadge"><text x="1012" y="220">NEW ★</text></g>
+    <text class="t" x="854" y="232">前端码风 · 反 AI 味</text>
+    <text class="m" x="854" y="258">design-taste-frontend</text>
+    <text class="m" x="854" y="278">redesign-existing-projects</text>
+    <text class="m" x="854" y="298">+ 4 风格预设</text>
+    <text class="k" x="854" y="330">写真实 HTML/CSS/JS</text>
+    <text class="k" x="854" y="348">落地页·官网·作品集</text>
+    <text class="k" x="854" y="378">裁决 8 · taste 家族 ×6</text>
+  </g>
+  <g class="node hot" data-k="graph">
+    <rect x="60" y="420" width="234" height="196" rx="11"/>
+    <text class="t" x="80" y="452">技术图 / 知识图谱</text>
+    <text class="m" x="80" y="478">fireworks-tech-graph</text>
+    <text class="m" x="80" y="498">graphify · 抽图谱</text>
+    <text class="k" x="80" y="530">已知结构→画给我</text>
+    <text class="k" x="80" y="548">喂语料→自动成图</text>
+    <text class="k" x="80" y="578">裁决 4</text>
+  </g>
+  <g class="node hot" data-k="poster">
+    <rect x="318" y="420" width="234" height="196" rx="11"/>
+    <text class="t" x="338" y="452">海报 / 社交卡片</text>
+    <text class="m" x="338" y="478">poster-hero · 竖版</text>
+    <text class="m" x="338" y="498">Poster-maorongwanju</text>
+    <text class="m" x="338" y="518">claude-design-card · 14 格</text>
+    <text class="k" x="338" y="550">看气质与平台三选一</text>
+    <text class="k" x="338" y="578">裁决 3</text>
+  </g>
+  <g class="node hot" data-k="motion">
+    <rect x="576" y="420" width="234" height="196" rx="11"/>
+    <text class="t" x="596" y="452">动效 / 视频</text>
+    <text class="m" x="596" y="478">motion-frames · 单帧</text>
+    <text class="m" x="596" y="498">pixel2motion · logo</text>
+    <text class="m" x="596" y="518">hyperframes 家族 ×15</text>
+    <text class="k" x="596" y="550">三选一：logo/单帧/成片</text>
+    <text class="k" x="596" y="578">裁决 7 · vimax 出素材</text>
+  </g>
+  <g class="node hot" data-k="specs">
+    <rect x="834" y="420" width="234" height="196" rx="11"/>
+    <text class="t" x="854" y="452">主题 · 规范 · 质检</text>
+    <text class="m" x="854" y="478">theme-factory · color-expert</text>
+    <text class="m" x="854" y="498">apple-hig · web-guidelines</text>
+    <text class="m" x="854" y="518">design-review · 审计</text>
+    <text class="k" x="854" y="550">2026-05-27 升入 6 个</text>
+    <text class="k" x="854" y="578">裁决 6</text>
+  </g>
+  <text class="zsub" x="58" y="672" style="font-family:var(--mono);font-size:10.5px;fill:var(--muted);">8 处裁决见 design-toolkit/SKILL.md §二 · taste 源真相在 ~/.agents/skills，~/.claude 是 symlink</text>
+
+  <!-- ── guard ─────────────────────────────── -->
+  <g class="node guard" data-k="guard">
+    <rect x="436" y="756" width="260" height="86" rx="11"/>
+    <text class="t" x="456" y="788">skills-guard 探针</text>
+    <text class="m" x="456" y="810">基线 110 · 缺失/断链报警</text>
+    <text class="k" x="456" y="830">SessionStart 钩子只读快照</text>
+  </g>
+
+  <!-- ── cold / proj ───────────────────────── -->
+  <g class="node store" data-k="cold">
+    <rect x="1140" y="196" width="420" height="176" rx="11"/>
+    <text class="t" x="1162" y="228">层 2 · 冷库 — open-design</text>
+    <text class="m" x="1162" y="254">267 项 · 未加载</text>
+    <text class="m" x="1162" y="274">现取走 open-design MCP（search/get）</text>
+    <text class="m" x="1162" y="294">会话内即用 · 零重载</text>
+    <text class="k" x="1162" y="326">目录 design-catalog.json</text>
+    <text class="k" x="1162" y="346">全量加载会爆 token · 常驻才 symlink</text>
+  </g>
+  <g class="node store" data-k="proj">
+    <rect x="1140" y="432" width="420" height="120" rx="11"/>
+    <text class="t" x="1162" y="464">层 3 · 项目内 — open-slide</text>
+    <text class="m" x="1162" y="490">主题驱动开放系统 · 11 套 theme</text>
+    <text class="m" x="1162" y="510">apple/claude/linear/ahrefs/mckinsey…</text>
+    <text class="k" x="1162" y="538">repo 绑定 · .demo.tsx 搬不走</text>
+  </g>
+
+  <!-- ── bridges ───────────────────────────── -->
+  <g class="node bridge" data-k="brand">
+    <rect x="1140" y="612" width="420" height="74" rx="11"/>
+    <text class="t" x="1162" y="642">桥接 · 品牌主题</text>
+    <text class="m" x="1162" y="666">design-md（59 品牌）+ npx getdesign add &lt;brand&gt;</text>
+  </g>
+  <g class="node bridge" data-k="ocr">
+    <rect x="1140" y="700" width="420" height="74" rx="11"/>
+    <text class="t" x="1162" y="730">桥接 · OCR（图→字）</text>
+    <text class="m" x="1162" y="754">轻 ocr :8080 · 重 docparse :8111（VL 按需）</text>
+  </g>
+  <g class="node bridge" data-k="vimax">
+    <rect x="1140" y="788" width="420" height="64" rx="11"/>
+    <text class="t" x="1162" y="816">桥接 · vimax（创意视频）</text>
+    <text class="m" x="1162" y="838">MCP submit_idea2video · 有 quota · 非 skill</text>
+  </g>
+</svg>
+
+  <div class="src">design-toolkit · /html-diagram 生成 · 数据对应 reference_design_skill_library</div>
+
+  <div class="card" id="flowcap">
+    <div class="fname" id="f-name"></div>
+    <ol id="f-steps"></ol>
+  </div>
+
+  <div class="card" id="detail">
+    <h3 id="d-title">点任意节点</h3>
+    <div class="meta" id="d-meta">每个框可点 · 顶部 chip 点亮路由</div>
+    <p id="d-body">这是 design-toolkit 的全景路由图。三层资源：<b>热集</b>（左·已加载）、<b>冷库</b>（右上·open-design 267 项按需取）、<b>项目内</b>（右中·open-slide repo 绑定）。右下三条<b>桥接</b>是 CLI/MCP 通道。顶部 chip 点亮一条路由决策；★ 是本次新入的 taste 前端码风家族。</p>
+  </div>
+</div>
+
+<script>
+const DETAIL = {
+  shell: { t:"design-toolkit", m:"路由壳 · 不产出", b:"住在 <code>~/.claude/skills/</code>，SessionStart 注入。三职责：① 按意图选对工具 ② 裁决 8 处重叠（deck/简历/海报/图/UI/主题/动效/<b>前端码风</b>）③ 桥接品牌主题 + 指向冷库。借 CLI-Anything 的 catalog 心智，<b>不建包管理基建</b>。" },
+  docs:  { t:"文档 / 落地页", m:"热集 · kami 系", b:"简历/一页纸/白皮书/作品集 → <b>kami</b>；单页落地页/官网 → <b>kami-landing</b>（要品牌风叠 design-md）；原始 md/csv/json/sql 美化成 HTML → <b>html-beautify</b>（75 模板）。只要快出一律 html-beautify。" },
+  deck:  { t:"幻灯片 Deck", m:"热集 · 封闭美学", b:"默认 <b>guizang-ppt</b>（网页 PPT，9 套预设）；安静印刷级衬线 → <b>kami-deck</b>。两者<b>故意拒绝外部 hex/theme</b>——保护美学比给自由重要。要套 Linear/Claude/Apple 等现成品牌主题，唯一高保真路径是进 <b>open-slide</b>（层 3）。" },
+  ui:    { t:"UI / 原型 / Demo", m:"热集 · 生成引擎", b:"<b>huashu-design</b> embody 专家做生成引擎，叠 <b>design-md</b> 供品牌风格；纯品牌问答（“按钮做成 Linear 样”）直接 design-md 不开原型。做完上线前过 <b>design-review</b> 质检，规范对照 <b>apple-hig</b> / <b>web-design-guidelines</b>。和『前端码风』的区别见 taste 节点。" },
+  taste: { t:"前端码风 · 反 AI 味 ★", m:"热集 · taste 家族 ×6（2026-06-18 装）", b:"写<b>真实前端代码</b>（落地页/官网/作品集）且要反 AI 味 → <b>design-taste-frontend</b>（读 brief 自定方向、audit-first、不套模板）；要某种明确码风叠风格预设：极简编辑 <b>minimalist-ui</b> / 粗野军用终端 <b>industrial-brutalist-ui</b> / 高端 agency 质感 <b>high-end-visual-design</b> / Awwwards 级 GSAP 动效 <b>gpt-taste</b>；升级旧站 → <b>redesign-existing-projects</b>。<b>四选一</b>：原型 mockup=huashu / 反味写码=taste / 改旧站=redesign / 暖纸固定美学单页=kami-landing。源真相在 <code>~/.agents/skills</code>，~/.claude 是 symlink。" },
+  graph: { t:"技术图 / 知识图谱", m:"热集", b:"已知结构画给我（架构/流程/时序/概念）→ <b>fireworks-tech-graph</b>；给一堆语料自动抽图谱 → <b>graphify</b>；要专业配色叠 color-expert。" },
+  poster:{ t:"海报 / 社交卡片", m:"热集 · 三选一", b:"竖版强冲击/朋友圈分享图 → <b>poster-hero</b>；毛绒吉祥物/文旅 → <b>Poster-maorongwanju</b>；公众号/视频号/B站/抖音封面·小红书图文·金句卡（Claude 美学，Playwright 出 PNG）→ <b>claude-design-card</b>（14 格式）。动态字 → motion-frames。" },
+  motion:{ t:"动效 / 视频", m:"热集 · 两引擎 + 三选一", b:"<b>动效三选一</b>：logo/品牌标记要动（reveal/splash，常先位图转矢量）→ <b>pixel2motion</b>；通用单帧（字环/计时器）→ <b>motion-frames</b>；多场景成片（字幕/转场/配音）→ <b>hyperframes 家族 ×15</b>（gsap/three/字幕/配音）。创意生成走 <b>vimax</b>（MCP，见右下桥接）。接力：vimax 出素材 → hyperframes 套字幕/转场。" },
+  specs: { t:"主题 · 规范 · 质检", m:"热集 · 2026-05-27 升入 6 个", b:"换字体+配色 → <b>theme-factory</b>（10 套）；配色科学/OKLCH/对比度 → <b>color-expert</b>；规范参照 → <b>apple-hig</b> / <b>web-design-guidelines</b>；上线前视觉审计→改→前后截图 → <b>design-review</b>。全部从冷库升入热集，受 skills-guard 探针保护。" },
+  cold:  { t:"层 2 · 冷库 open-design", m:"267 项 · 未加载", b:"躺在 <code>~/projects/open-design/</code>，<b>没加载</b>。现取走 <b>open-design MCP</b>（search_files / get_artifact），<b>会话内即用、零重载</b>。真要常驻才 symlink 进热集 + 跑 <code>guard --baseline</code>（次会话才生效）。全量加载会爆 token，所以默认冷着。目录见 design-catalog.json。" },
+  proj:  { t:"层 3 · 项目内 open-slide", m:"repo 绑定 · 主题驱动", b:"deck 要套<b>现成/品牌主题</b>的唯一高保真路径：进 open-slide repo，create-slide + theme（11 套：apple/claude/linear/ahrefs/ycombinator/mckinsey…）。theme = <code>.md</code>（可移植令牌）+ <code>.demo.tsx</code>（绑死 @open-slide/core 的 React，<b>搬不走</b>）。令牌能抄，渲染层抄不了。" },
+  brand: { t:"桥接 · 品牌主题", m:"design-md + getdesign CLI", b:"“从真实品牌出一套设计系统”全局现在就能做，不依赖任何项目：<code>npx getdesign add &lt;brand&gt;</code> 抓 59 个品牌的设计令牌（linear/stripe/vercel/claude/notion/tesla…），<b>design-md</b> 吃令牌生成 UI/风格。要落成 open-slide 主题包才进项目跑 <code>/theme-from-brand</code>。" },
+  ocr:   { t:"桥接 · OCR（图→字）", m:"两档 · 轻 ocr / 重 docparse", b:"唯一的<b>输入类</b>能力（图→文字），区别于其它产出节点。① 轻 <code>ocr &lt;图/PDF/URL&gt;</code>——PP-OCRv6 纯文字，launchd 常驻 <code>:8080</code>，M4 约 0.5s，<code>--json</code> 带坐标；② 重 <code>docparse</code>——PaddleOCR-VL（0.9B）整文档解析（表格/公式/版面/阅读顺序），MLX 后端 <code>:8111</code> <b>按需起/停</b>（~4GB，用完 stop）。出料喂 kami / claude-design-card / huashu-design 重排。" },
+  vimax: { t:"桥接 · vimax（创意视频）", m:"MCP · 非 skill · 有 quota", b:"给个想法/脚本让 AI 生成创意片：<code>mcp__vimax__submit_idea2video</code> / <code>submit_script2video</code>，再 <code>get_job_status</code> → <code>list_artifacts</code>。需 daemon 在线（<code>vimax health</code>）。<b>是 MCP 工具不是 skill</b>，别用 Skill() 调。接力：vimax 出素材 → hyperframes 套字幕/转场。" },
+  guard: { t:"skills-guard 探针", m:"只读 · 基线 110", b:"每次会话快照 <code>~/.claude/skills/</code> 实际状态，对比基线报告漂移（缺失/断链/新增）。热集成员（含 taste 家族 ×6 与 2026-05-27 升入的 6 个）都进基线受保护。新增/删热集后跑 <code>guard.py --baseline</code> 重置。SessionStart 钩子用 <code>--quiet</code>，干净时一字不出。" },
+};
+
+const FLOWS = {
+  taste: {
+    name: "前端码风 — 做个网页四选一（裁决 8）",
+    edges: ["e-hot"], nodes: ["shell","taste","ui"],
+    steps: ["要可点<b>原型/Demo/设计变体</b> → <code>huashu-design</code>（embody 专家）",
+            "<b>写真实落地页/官网代码、反 AI 味</b> → <code>design-taste-frontend</code>，要明确码风叠预设（minimalist-ui / industrial-brutalist-ui / high-end-visual-design / gpt-taste）",
+            "<b>升级旧站</b> → <code>redesign-existing-projects</code>（动方向）/ <code>design-review</code>（只审计+前后截图）",
+            "要<b>暖纸固定美学单页</b> → <code>kami-landing</code>（封闭美学，不接外部风格）"]
+  },
+  deck: {
+    name: "出 deck — 默认 vs 套品牌主题（裁决 1）",
+    edges: ["e-hot","e-cold","e-proj"], nodes: ["shell","deck","proj"],
+    steps: ["不挑主题、要快好看 → <code>guizang-ppt</code>（9 套预设）/ 印刷级 → <code>kami-deck</code>",
+            "要套 Linear/Claude/Apple 等现成 theme → 进 <b>open-slide</b>（层 3），create-slide + 该 theme",
+            "没现成的？先 <code>/theme-from-brand &lt;brand&gt;</code> 造一套再 create-slide"]
+  },
+  ui: {
+    name: "UI / 原型 — 生成 + 品牌风 + 质检（裁决 5）",
+    edges: ["e-hot","e-brand1"], nodes: ["shell","ui","specs","brand"],
+    steps: ["<b>huashu-design</b> 做生成引擎，叠 <b>design-md</b> 供品牌风格",
+            "纯品牌问答（“按钮做成 Linear 样”）直接 design-md，不开原型",
+            "上线前过 <b>design-review</b> 质检，规范对照 apple-hig / web-design-guidelines"]
+  },
+  poster: {
+    name: "海报 / 卡片 — 看平台与气质（裁决 3）",
+    edges: ["e-hot"], nodes: ["shell","poster"],
+    steps: ["竖版强冲击/朋友圈分享图 → <code>poster-hero</code>",
+            "毛绒吉祥物/文旅 → <code>Poster-maorongwanju</code>",
+            "平台封面·小红书图文·金句卡（Claude 美学出 PNG）→ <code>claude-design-card</code>"]
+  },
+  motion: {
+    name: "动效 / 视频 — 三选一 + 两引擎（裁决 7）",
+    edges: ["e-hot","e-vimax"], nodes: ["shell","motion","vimax"],
+    steps: ["logo/品牌标记要动 → <code>pixel2motion</code>（位图转矢量 + Disney 12 原则编排）",
+            "通用单帧（字环/计时器/地球）→ <code>motion-frames</code>",
+            "多场景成片（字幕/转场/配音）→ <code>hyperframes 家族 ×15</code>；创意生成 → <code>vimax</code>（MCP，有 quota）"]
+  },
+  brand: {
+    name: "品牌主题 — design-md + getdesign 桥接（裁决 6）",
+    edges: ["e-brand1","e-brand2","e-proj"], nodes: ["brand","ui","specs","proj"],
+    steps: ["<code>npx getdesign add &lt;brand&gt;</code> 抓 59 品牌设计令牌（任意项目可用）",
+            "<b>design-md</b> 吃令牌生成 UI / 风格；换字体+配色用 <b>theme-factory</b>",
+            "落成 open-slide 主题包 → 进项目跑 <code>/theme-from-brand</code>"]
+  },
+  ocr: {
+    name: "OCR — 图→字，唯一输入类",
+    edges: ["e-ocr"], nodes: ["ocr","docs"],
+    steps: ["只要文字（截图/竞品海报）→ <code>ocr &lt;路径或URL&gt;</code> 纯文本，<code>--json</code> 带坐标",
+            "整文档结构化（表格/公式/版面/阅读顺序）→ <code>docparse</code> 出 markdown+json（VL 按需，用完 stop）",
+            "出料喂 <b>kami</b> / <b>claude-design-card</b> / <b>huashu-design</b> 重排"]
+  },
+  cold: {
+    name: "够不着 — 热集没有就查冷库",
+    edges: ["e-cold"], nodes: ["shell","cold"],
+    steps: ["看目录 <code>design-catalog.json</code>（267 项，含 category）",
+            "现取内容 → <b>open-design MCP</b>（search_files / get_artifact），会话内即用",
+            "真要常驻 → symlink 进 ~/.claude/skills + <code>guard --baseline</code>（次会话生效）"]
+  }
+};
+
+const stage = document.getElementById('stage');
+const nodes = document.querySelectorAll('.node');
+const edges = document.querySelectorAll('.edge');
+const elbls = document.querySelectorAll('.elbl');
+const chips = document.querySelectorAll('.chip');
+const fcap = document.getElementById('flowcap');
+
+function setFlow(key) {
+  chips.forEach(c => c.classList.toggle('on', c.dataset.flow === key));
+  edges.forEach(e => e.classList.remove('lit'));
+  elbls.forEach(l => l.classList.remove('lit'));
+  nodes.forEach(n => n.classList.remove('lit'));
+  if (key === 'all') { stage.classList.remove('flowing'); fcap.classList.remove('show'); return; }
+  const f = FLOWS[key];
+  stage.classList.add('flowing');
+  f.edges.forEach(id => document.getElementById(id)?.classList.add('lit'));
+  elbls.forEach(l => { if (f.edges.includes(l.dataset.e)) l.classList.add('lit'); });
+  f.nodes.forEach(k => document.querySelector(`.node[data-k="${k}"]`)?.classList.add('lit'));
+  document.getElementById('f-name').textContent = f.name;
+  document.getElementById('f-steps').innerHTML = f.steps.map(s => `<li>${s}</li>`).join('');
+  fcap.classList.add('show');
+}
+chips.forEach(c => c.addEventListener('click', () => setFlow(c.dataset.flow)));
+
+nodes.forEach(n => n.addEventListener('click', () => {
+  nodes.forEach(x => x.classList.remove('sel'));
+  n.classList.add('sel');
+  const d = DETAIL[n.dataset.k];
+  if (!d) return;
+  document.getElementById('d-title').textContent = d.t;
+  document.getElementById('d-meta').textContent = d.m;
+  document.getElementById('d-body').innerHTML = d.b;
+}));
+
+document.getElementById('themeToggle').addEventListener('click', () => {
+  const dark = !document.documentElement.classList.contains('dark');
+  document.documentElement.classList.toggle('dark', dark);
+  localStorage.setItem('dtk-theme', dark ? 'dark' : 'light');
+});
+</script>
+</body>
+</html>
