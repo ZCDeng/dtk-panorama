@@ -115,13 +115,13 @@
     background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
     padding: 14px 16px; box-shadow: 0 6px 24px rgba(0,0,0,0.10);
   }
-  #detail { right: 16px; bottom: 16px; width: 350px; }
+  #detail { left: 16px; bottom: 16px; width: 350px; }
   #detail h3 { font-family: var(--serif); font-weight: 500; font-size: 17px; color: var(--ink); margin-bottom: 2px; }
   #detail .meta { font-family: var(--mono); font-size: 10.5px; color: var(--muted); margin-bottom: 8px; }
   #detail p { font-size: 12.5px; line-height: 1.6; }
   #detail p code, #flowcap code { font-family: var(--mono); font-size: 11px; color: var(--clay); }
   #detail b, #flowcap b { color: var(--ink); }
-  #flowcap { left: 16px; bottom: 16px; max-width: 470px; display: none; }
+  #flowcap { right: 16px; bottom: 16px; max-width: 470px; display: none; }
   #flowcap.show { display: block; }
   #flowcap .fname { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.06em; color: var(--clay); margin-bottom: 6px; }
   #flowcap ol { margin-left: 18px; }
@@ -140,7 +140,7 @@
 <div class="bar">
   <div>
     <h1>Design Toolkit — 设计能力全景</h1>
-    <div class="sub">路由壳 · 三层资源 · 8 处裁决 · taste 家族新入 · 对应 reference_design_skill_library</div>
+    <div class="sub">路由壳 · 三层资源 · 8 处裁决 · +微交互 / 图生提示词桥（2026-06-29）· 对应 reference_design_skill_library</div>
   </div>
   <div class="spacer"></div>
   <div class="chips" id="chips">
@@ -150,6 +150,8 @@
     <button class="chip" data-flow="ui">UI 原型</button>
     <button class="chip" data-flow="poster">海报/卡片</button>
     <button class="chip" data-flow="motion">动效/视频</button>
+    <button class="chip star" data-flow="interact">微交互 ★</button>
+    <button class="chip star" data-flow="imgprompt">图生提示词 ★</button>
     <button class="chip" data-flow="brand">品牌主题</button>
     <button class="chip" data-flow="ocr">OCR 图→字</button>
     <button class="chip" data-flow="cold">够不着→冷库</button>
@@ -158,7 +160,7 @@
 </div>
 
 <div class="stage" id="stage">
-<svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Design Toolkit 设计能力全景路由图">
+<svg viewBox="0 0 1600 980" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Design Toolkit 设计能力全景路由图">
   <defs>
     <marker id="a-mut" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
       <path d="M0,0 L10,5 L0,10 z" style="fill: var(--muted)"/>
@@ -172,10 +174,10 @@
   <g class="zone" id="z-hot">
     <rect x="36" y="132" width="1060" height="600" rx="16"/>
     <text class="ztitle" x="58" y="162">层 1 · 热集 — 已加载 · 直接 Skill 调用</text>
-    <text class="zsub" x="58" y="180">~/.claude/skills · SessionStart 注入 · 受 skills-guard 探针保护（基线 110）</text>
+    <text class="zsub" x="58" y="180">~/.claude/skills · SessionStart 注入 · 受 skills-guard 探针保护（基线 121）</text>
   </g>
   <g class="zone" id="z-bridge">
-    <rect x="1116" y="560" width="468" height="306" rx="16"/>
+    <rect x="1116" y="560" width="468" height="400" rx="16"/>
     <text class="ztitle" x="1138" y="590">桥接 — CLI / MCP 通道（非 skill）</text>
     <text class="zsub" x="1138" y="608">现取现用 · 不占 SessionStart 加载</text>
   </g>
@@ -193,7 +195,7 @@
   <text class="elbl" data-e="e-cold"   x="1120" y="150">够不着→冷库</text>
   <text class="elbl" data-e="e-brand1" x="980"  y="486">令牌→design-md</text>
   <text class="elbl" data-e="e-ocr"    x="430"  y="690">图→字 喂排版</text>
-  <text class="elbl" data-e="e-vimax"  x="720"  y="640">创意片素材</text>
+  <text class="elbl" data-e="e-vimax"  x="858"  y="598">创意片素材</text>
 
   <!-- ── shell ─────────────────────────────── -->
   <g class="node shell" data-k="shell">
@@ -280,13 +282,21 @@
     <text class="k" x="854" y="550">2026-05-27 升入 6 个</text>
     <text class="k" x="854" y="578">裁决 6</text>
   </g>
-  <text class="zsub" x="58" y="672" style="font-family:var(--mono);font-size:10.5px;fill:var(--muted);">8 处裁决见 design-toolkit/SKILL.md §二 · taste 源真相在 ~/.agents/skills，~/.claude 是 symlink</text>
+  <g class="node new" data-k="interact">
+    <rect x="576" y="624" width="234" height="100" rx="11"/>
+    <g class="nbadge"><text x="744" y="644">NEW ★</text></g>
+    <text class="t" x="596" y="656">微交互 / 过渡</text>
+    <text class="m" x="596" y="680">transitions-dev · 21 过渡</text>
+    <text class="m" x="596" y="698">t-* · reduced-motion 守卫</text>
+    <text class="k" x="596" y="718">裁决 7 · UI 状态过渡</text>
+  </g>
+  <text class="zsub" x="58" y="706" style="font-family:var(--mono);font-size:10.5px;fill:var(--muted);">8 处裁决见 SKILL.md §二 · taste 源真相 ~/.agents/skills</text>
 
   <!-- ── guard ─────────────────────────────── -->
   <g class="node guard" data-k="guard">
     <rect x="436" y="756" width="260" height="86" rx="11"/>
     <text class="t" x="456" y="788">skills-guard 探针</text>
-    <text class="m" x="456" y="810">基线 110 · 缺失/断链报警</text>
+    <text class="m" x="456" y="810">基线 121 · 缺失/断链报警</text>
     <text class="k" x="456" y="830">SessionStart 钩子只读快照</text>
   </g>
 
@@ -324,6 +334,12 @@
     <text class="t" x="1162" y="816">桥接 · vimax（创意视频）</text>
     <text class="m" x="1162" y="838">MCP submit_idea2video · 有 quota · 非 skill</text>
   </g>
+  <g class="node bridge" data-k="prompt">
+    <rect x="1140" y="876" width="420" height="64" rx="11"/>
+    <g class="nbadge"><text x="1498" y="896">NEW ★</text></g>
+    <text class="t" x="1162" y="904">桥接 · 图生提示词库</text>
+    <text class="m" x="1162" y="926">~/.prompt-cookbook · 85 风格 → z-image / vimax</text>
+  </g>
 </svg>
 
   <div class="src">design-toolkit · /html-diagram 生成 · 数据对应 reference_design_skill_library</div>
@@ -336,7 +352,7 @@
   <div class="card" id="detail">
     <h3 id="d-title">点任意节点</h3>
     <div class="meta" id="d-meta">每个框可点 · 顶部 chip 点亮路由</div>
-    <p id="d-body">这是 design-toolkit 的全景路由图。三层资源：<b>热集</b>（左·已加载）、<b>冷库</b>（右上·open-design 267 项按需取）、<b>项目内</b>（右中·open-slide repo 绑定）。右下三条<b>桥接</b>是 CLI/MCP 通道。顶部 chip 点亮一条路由决策；★ 是本次新入的 taste 前端码风家族。</p>
+    <p id="d-body">这是 design-toolkit 的全景路由图。三层资源：<b>热集</b>（左·已加载）、<b>冷库</b>（右上·open-design 267 项按需取）、<b>项目内</b>（右中·open-slide repo 绑定）。右下四条<b>桥接</b>是 CLI/MCP 通道。顶部 chip 点亮一条路由决策；★ 标 2026-06-29 新入：<b>微交互</b>（transitions-dev）与<b>图生提示词桥</b>（cookbook 85 风格）。</p>
   </div>
 </div>
 
@@ -356,7 +372,9 @@ const DETAIL = {
   brand: { t:"桥接 · 品牌主题", m:"design-md + getdesign CLI", b:"“从真实品牌出一套设计系统”全局现在就能做，不依赖任何项目：<code>npx getdesign add &lt;brand&gt;</code> 抓 59 个品牌的设计令牌（linear/stripe/vercel/claude/notion/tesla…），<b>design-md</b> 吃令牌生成 UI/风格。要落成 open-slide 主题包才进项目跑 <code>/theme-from-brand</code>。" },
   ocr:   { t:"桥接 · OCR（图→字）", m:"两档 · 轻 ocr / 重 docparse", b:"唯一的<b>输入类</b>能力（图→文字），区别于其它产出节点。① 轻 <code>ocr &lt;图/PDF/URL&gt;</code>——PP-OCRv6 纯文字，launchd 常驻 <code>:8080</code>，M4 约 0.5s，<code>--json</code> 带坐标；② 重 <code>docparse</code>——PaddleOCR-VL（0.9B）整文档解析（表格/公式/版面/阅读顺序），MLX 后端 <code>:8111</code> <b>按需起/停</b>（~4GB，用完 stop）。出料喂 kami / claude-design-card / huashu-design 重排。" },
   vimax: { t:"桥接 · vimax（创意视频）", m:"MCP · 非 skill · 有 quota", b:"给个想法/脚本让 AI 生成创意片：<code>mcp__vimax__submit_idea2video</code> / <code>submit_script2video</code>，再 <code>get_job_status</code> → <code>list_artifacts</code>。需 daemon 在线（<code>vimax health</code>）。<b>是 MCP 工具不是 skill</b>，别用 Skill() 调。接力：vimax 出素材 → hyperframes 套字幕/转场。" },
-  guard: { t:"skills-guard 探针", m:"只读 · 基线 110", b:"每次会话快照 <code>~/.claude/skills/</code> 实际状态，对比基线报告漂移（缺失/断链/新增）。热集成员（含 taste 家族 ×6 与 2026-05-27 升入的 6 个）都进基线受保护。新增/删热集后跑 <code>guard.py --baseline</code> 重置。SessionStart 钩子用 <code>--quiet</code>，干净时一字不出。" },
+  interact: { t:"微交互 / 过渡 ★", m:"热集 · transitions-dev（2026-06-29 装）", b:"<b>应用内 UI 微交互</b>（模态展开/徽标弹入/下拉/错误抖动/骨架/sliding tabs/手风琴）→ <b>transitions-dev</b>：21 个自包含 CSS 过渡，<code>t-*</code> 命名 + 语义自定义属性，每条带 <code>prefers-reduced-motion</code> 守卫；命令 reveal/review/apply/refine。<b>动效四选一</b>：UI 过渡=transitions / logo=pixel2motion / 单帧=motion-frames / 成片=hyperframes。无 license（作者以 skill 形态发布），源真相 <code>~/.agents/skills</code>，<b>不入私库镜像</b>。" },
+  prompt: { t:"桥接 · 图生提示词库 ★", m:"~/.prompt-cookbook · 85 风格（MIT）", b:"<b>图像生成的风格 prompt 银行</b>，补「有引擎、没策展提示词」的空白。85 个 <code>style.json</code>，每个含 <code>prompt_template</code>（<code>{VARIABLE}</code> 占位）+ <code>negative_prompt</code> + 保真锚点。<b>取用</b>：按风格读 prompt_template 填变量 → 喂 <b>z-image-turbo</b>（HF MCP）/ <b>vimax</b>。只读素材库，性质同 getdesign / OCR 桥，不进冷库。对 ai-daily-newsletter 头条漫画直接有用。" },
+  guard: { t:"skills-guard 探针", m:"只读 · 基线 121", b:"每次会话快照 <code>~/.claude/skills/</code> 实际状态，对比基线报告漂移（缺失/断链/新增）。热集成员（含 taste 家族 ×6、transitions-dev、2026-05-27 升入的 6 个）都进基线受保护。新增/删热集后跑 <code>guard.py --baseline</code> 重置。SessionStart 钩子用 <code>--quiet</code>，干净时一字不出。" },
 };
 
 const FLOWS = {
@@ -395,6 +413,20 @@ const FLOWS = {
     steps: ["logo/品牌标记要动 → <code>pixel2motion</code>（位图转矢量 + Disney 12 原则编排）",
             "通用单帧（字环/计时器/地球）→ <code>motion-frames</code>",
             "多场景成片（字幕/转场/配音）→ <code>hyperframes 家族 ×15</code>；创意生成 → <code>vimax</code>（MCP，有 quota）"]
+  },
+  interact: {
+    name: "微交互 — UI 状态过渡 transitions-dev（裁决 7）",
+    edges: [], nodes: ["shell","motion","interact"],
+    steps: ["匹配 UI 元素与决策规则（模态/徽标/下拉/抖动/骨架/手风琴…）",
+            "<code>transitions apply</code> 取 <code>t-*</code> CSS 片段（带 reduced-motion 守卫），接 HTML hook",
+            "<b>三选一边界</b>：UI 过渡=transitions / 单帧=motion-frames / 成片=hyperframes"]
+  },
+  imgprompt: {
+    name: "图生提示词 — cookbook 桥喂引擎",
+    edges: [], nodes: ["prompt","motion"],
+    steps: ["按目标风格在 <code>~/.prompt-cookbook/styles/</code> 选 <code>style.json</code>",
+            "读 <code>prompt_template</code> 填 <code>{VARIABLE}</code>，带上 <code>negative_prompt</code>",
+            "喂 <b>z-image-turbo</b>（HF MCP）/ <b>vimax</b> 出图 / 出片"]
   },
   brand: {
     name: "品牌主题 — design-md + getdesign 桥接（裁决 6）",
